@@ -1,0 +1,572 @@
+<!-- Created by AMRIT KUMAR -->
+
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://kit.fontawesome.com/a2fa536777.js" crossorigin="anonymous"></script>
+  <title>CITsec main page</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500&display=swap');
+    *{
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html {
+      font-size: 62.5%;
+    }
+    body {
+      font-family: 'Montserrat', sans-serif;
+    }
+    .header {
+      position: relative;
+      height: 100vh;
+      background-image:linear-gradient(to top , #0000005E, #0000008C) ,url('https://i.postimg.cc/kXzTq4hn/header-image.jpg');
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-size: cover;
+      filter: contrast(110%);
+    }
+
+
+    /*###########   Navbar    ##############*/
+
+
+    .navbar {
+      padding: 1rem;
+    }
+    .navbar::after {
+      content: "";
+      display: block;
+      clear: both;
+    }
+     .navbar .logo {
+      color: white;
+      float: left;
+    }
+     .navbar .listitems {
+      float: right;
+    }
+     ul li {
+      list-style: none;
+      display: inline-block;
+      padding: 1rem;
+      margin-top: 1rem;
+      margin-bottom: 0.5em;
+      font-size: 1.6rem;
+    }
+     .navbar li a {
+      color: white;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      text-decoration: none;
+      display: inline-block;
+      padding-bottom: 0.3rem;
+    }
+     .navbar li a:hover {
+      color: #DC2936;
+      border-bottom: 1px solid white;
+    }
+
+    /*#########  Header content  ##########*/
+
+
+    .header-content {
+      width: 80%;
+      padding: 2em;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+
+    }
+
+    .header-content h1 {
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    .header-content p {
+      text-transform: uppercase;
+    }
+
+
+    /*#######   Showcase section   ##########*/
+
+
+    .showcase {
+      background-color: rgb(252,252,255);
+      padding: 10rem 0;
+    }
+
+    .row {
+      height: 350px;
+      background-color: white;
+      box-shadow: 10px 10px 10px rgba(0,0,0,0.5), -10px -10px 10px rgba(250,250,250,0.9);
+    }
+
+    .row1 , .row2 {
+      margin-bottom: 10rem;
+    }
+
+    .row1 .img-box , .row2 .text-box ,.row3 .img-box {
+      float: left;
+      width: 50%;
+
+    }
+
+    .row2 .img-box , .row1 .text-box , .row3 .text-box{
+      float: right;
+      width: 50%;
+
+    }
+
+    .row .img-box {
+      height: 100%;
+    }
+
+    .row .text-box {
+      padding: 3rem;
+    }
+    .row .img-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .row h2 {
+     text-transform: uppercase;
+     text-align: center;
+    }
+    .row::after {
+      content: '';
+      display: block;
+      float: clear;
+    }
+
+
+    /*############## Feature section #########*/
+
+
+    .feature {
+      padding: 10rem 0;
+      height: 100vh;
+
+    }
+    .box-wrapper {
+      box-shadow: 10px 10px 15px rgba(0,0,0,0.5), -10px -10px 15px rgba(230,230,230,0.7);
+    }
+    .box-wrapper .featureName {
+      text-align: center;
+      border-bottom: 0.5rem solid crimson;
+      margin-bottom: 8rem;
+    }
+    .box {
+      width: 33.33333%;
+      height: 250px;
+      float: left;
+      padding: 2rem;
+      text-align: center;
+    }
+    .box-wrapper::after {
+      content: '';
+      display: block;
+      clear: both;
+    }
+    .box i {
+      font-size: 30px;
+      margin-bottom: 0.3em;
+    }
+    .box1 , .box3 {
+      background: #263238;
+      color: white;
+    }
+    .box2 {
+      background: rgba(202, 44, 55, 0.9);
+    }
+
+  /*#############    Footer      ##############*/
+
+
+    .footer {
+      background: #263238;
+      color: #f4f4f4;
+      padding: 2rem;
+      text-align: center;
+    }
+    .social i {
+      font-size: 6rem;
+      margin: 2rem;
+      color: white;
+    }
+    .social i:hover {
+      color: crimson;
+    }
+
+
+
+   /*###########    About page  #############*/
+
+
+    .about {
+      padding: 5rem 0;
+
+    }
+    /*
+    To draw bottom line method (1)  ===>
+    .about-heading {
+      border-bottom: 0.6rem solid #e63946;
+    }
+    */
+    /* To draw bottom line method(2) ===>  */
+    .about-heading::after {
+      content: '';
+      display: block;
+      border: 0.3rem solid #e63946;
+      width: 100%
+    }
+    .about-wrapper {
+      text-align: left;
+      margin-top: 2rem;
+    }
+    .about-wrapper ul li {
+      display: block;
+    }
+    .about-wrapper ul li::before {
+      content: '\2713';
+      display: inline-block;
+      color: #e63946;
+      font-weight: 700;
+      padding-right: 1rem;
+    }
+    .about-wrapper .about-left {
+      float: left;
+      width: 50%;
+
+    }
+    .about-wrapper .about-right {
+      float: right;
+      width: 50%;
+    }
+    .about-wrapper::after {
+      content: '';
+      display: block;
+      clear: both;
+    }
+    .counts {
+      margin-top: 5rem;
+    }
+    .count-items {
+      float: left;
+      width: 25%;
+      text-align: center;
+    }
+    .counts::after {
+      content: '';
+      display: block;
+      clear: both;
+    }
+    .counts span {
+      color: #e63946;
+      font-size: 3rem;
+      font-weight: 700;
+    }
+    .counts p {
+      font-weight: 700;
+    }
+    .about-banner {
+      margin-top: 5em;
+      background: #e63946;
+      padding: 1rem;
+      color: white;
+      box-shadow: 5px 5px 10px rgba(0,0,0,0.5), -5px -5px 10px rgba(230,230,230,1);
+
+    }
+    .about-banner .left-banner {
+      float: left;
+      width: 60%;
+    }
+    .about-banner .right-banner {
+      float: right;
+      width: 40%;
+    }
+    .about-banner::after {
+      content: '';
+      display: block;
+      clear: both;
+    }
+    .left-banner p {
+      font-size: 2rem;
+      font-weight: 450;
+      margin-top: 0.5em;
+    }
+    .button-banner {
+      display: inline-block;
+      font-weight: 700;
+      font-size: 2.5rem;
+      text-transform: uppercase;
+      text-decoration: none;
+      border: 0.2em solid white;
+      color: #f4f4f4;
+      padding: 0.4em 1em;
+      letter-spacing: 0.5rem;
+
+    }
+
+
+    /*########################################*/
+
+
+    p {
+      font-size: 1.6rem;
+      margin-bottom: 0.5em;
+    }
+
+    h1 , h2 , h3 {
+      margin-bottom: 0.5em;
+      letter-spacing: 0.15em;
+      font-weight: 500;
+    }
+
+
+    /*########### Utility classes #############*/
+
+
+    .lg-heading {
+      font-size: 3.5rem;
+    }
+    .md-heading {
+      font-size: 2.2rem;
+    }
+    .text-red {
+      color: #DC2936;
+    }
+    .text-white {
+      color: #f4f4f4;
+    }
+    .text-black {
+      color: #252525;
+    }
+    .text-grey {
+      color: #555555;
+    }
+    .container {
+      max-width: 1200px;
+      width: 80%;
+      margin: 0 auto;
+    }
+    .btn {
+      display: inline-block;
+      font-weight: 500;
+      padding: 0.5em 1.5em;
+      text-transform: uppercase;
+      text-decoration: none;
+      margin: 0.5em 0;
+    }
+    .btn-primary {
+      background: #fff;
+      border-radius: 10em;
+    }
+    .btn-primary:hover {
+      background: #DC2936;
+      color: white;
+
+    }
+    .btn-secondary {
+      background: #fff;
+      letter-spacing: 0.6em;
+      padding: 1em 3em;
+      font-weight: bold;
+      border: 2px solid #DC2936;
+      border-radius: 1.5em;
+      color: #DC2936;
+    }
+    .btn-secondary:hover {
+      background: #111;
+    }
+
+    .bg-dark {
+      background: #263238;
+    }
+
+    /*#########   Media Query    #############*/
+
+
+    @media (max-width: 500px) {
+
+      html {
+        font-size: 50%;
+      }
+
+      .navbar .listitems, .navbar .logo {
+        float: none;
+        display: block;
+        text-align: center;
+      }
+
+      .row {
+        height: auto;
+        width: 100%;
+        box-shadow: 5px 5px 5px rgba(0,0,0,0.5), -10px -10px 15px rgba(230,230,230,0.7);
+
+      }
+      .row .img-box , .row .text-box {
+        float: none;
+        width: 100%;
+        text-align: center;
+      }
+      .feature .box {
+        float: none;
+        width: 100%;
+        text-align: center;
+        height: auto;
+        box-shadow: 5px 5px 5px rgba(0,0,0,0.5), -10px -10px 15px rgba(230,230,230,0.7);
+      }
+      .feature .box2 , .feature .box3 {
+        margin-top: 7rem;
+      }
+      .box-wrapper {
+        box-shadow: none;
+      }
+
+      .feature .box i {
+        font-size: 20px;
+      }
+      .footer {
+        padding: 1rem;
+      }
+      .social i {
+        font-size: 3rem;
+      }
+      .about-banner .left-banner, .about-banner .right-banner {
+        float: none;
+        width: 100;
+      }
+      .left-banner p {
+        font-size: 1.7rem;
+      }
+      .button-banner {
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+ </head>
+ <body>
+  <header class="header">
+   <nav class="navbar">
+    <div class="container">
+     <h1 class="logo lg-heading">CXP</h1>
+     <ul class="listitems">
+      <li><a href="#">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+     </ul>
+    </div>
+   </nav>
+   <div class="header-content">
+    <h1 class="lg-heading text-white"> CITsec security </h1>
+    <p class="text-white"> Feel secure with CITsec security solution and get rid from cyber harassment, we will provide free seminar. </p> <a class="btn btn-primary text-red md-heading" href="#explore">Explore more</a>
+   </div>
+  </header> <!--Showcase section------------>
+  <section class="showcase" id="explore">
+   <div class="container"> <!--Showcase section row1-------->
+    <div class="row row1">
+     <div class="img-box">
+      <img src="https://i.postimg.cc/fyFfz2CH/images-4.jpg" alt="phishing">
+     </div>
+     <div class="text-box">
+      <h2 class="lg-heading text-black">Phishing</h2>
+      <p class="text-grey"> Phishing is when attackers send malicious emails designed to trick people into falling for a scam. Typically, the intent is to get users to reveal financial information, system credentials or other sensitive data. </p> <a class="btn btn-secondary " href="#">More</a>
+     </div>
+    </div> <!--Showcase section row2-------->
+    <div class="row row2">
+     <div class="img-box">
+      <img src="https://i.postimg.cc/ZYDcxnmr/Getty-Images-1353240272-e1656010744693.jpg" alt="malware">
+     </div>
+     <div class="text-box">
+      <h2 class="lg-heading text-black">Malware</h2>
+      <p class="text-grey"> Malware is any software intentionally designed to cause disruption to a computer, server, client, or computer network, leak private information, gain unauthorized access to information or systems, deprive access to information. </p> <a class="btn btn-secondary " href="#">More</a>
+     </div>
+    </div> <!--Showcase section row3--------->
+    <div class="row row3">
+     <div class="img-box">
+      <img src="https://i.postimg.cc/4dW1MN9R/47-Prospects-of-an-Ethical-Hacking-Career-in-India-uai-258x190.jpg" alt="hacking">
+     </div>
+     <div class="text-box">
+      <h2 class="lg-heading text-black">Hacking</h2>
+      <p class="text-grey"> Hacking refers to the misuse of devices like computers, smartphones, tablets, and networks to cause damage to or corrupt systems, gather information on users, steal data and documents, or disrupt data-related activity. </p> <a class="btn btn-secondary" href="#">More</a>
+     </div>
+    </div>
+   </div>
+  </section> <!--Feature section--------------->
+  <section class="feature ">
+   <div class="container">
+    <div class="box-wrapper"> <!--Feature section box1------>
+     <h2 class=" featureName lg-heading">Features</h2>
+     <div class="box box1"> <i class="fa-sharp fa-solid fa-shield-halved text-red"></i>
+      <h2 class="md-heading">Privacy</h2>
+      <p> CITSEC security solution ensures thier user that privacy of users will be kept private. There will nkt be any leakage of data. </p>
+     </div> <!--Feature section box2--------->
+     <div class="box box2"> <i class="fa-solid fa-sack-dollar text-white"></i>
+      <h2 class="md-heading">Less price</h2>
+      <p> My company provide cheapest service in the world of internet for security solutions. To use primium services You have to pay only $50 </p>
+     </div> <!--Feature section box3---------->
+     <div class="box box3"> <i class="fa-sharp fa-solid fa-user-check text-red"></i>
+      <h2 class="md-heading">Experience</h2>
+      <p> we have experienced ethical hacker, developer, programmer and penetration tester, who will provide you best services. </p>
+     </div>
+    </div>
+   </div>
+  </section> <!--Section About--------------->
+  <section class="about" id="about">
+   <div class="container">
+    <h2 class="lg-heading text-black about-heading">About us</h2>
+    <p class="text-grey"> Sup, Im Almaz </p> <!--About List------------>
+    <div class="about-wrapper">
+     <div class="about-left text-grey">
+      <ul>
+       <li>I study in KBTU</li>
+       <li>I am from KZ</li>
+       <li>I love coding</li>
+      </ul>
+     </div>
+     <div class="about-right">
+      <ul>
+       <li>I have done html</li>
+       <li>I have done css</li>
+       <li>I have done js</li>
+      </ul>
+     </div>
+    </div> <!--About Counts------------>
+    <div class="counts text-grey">
+     <div class="count-items count-item1"> <span>700</span>
+      <p>Followers</p>
+     </div>
+     <div class="count-items count-item2"> <span>157</span>
+      <p>Following</p>
+     </div>
+     <div class="count-items count-item3"> <span>1</span>
+      <p>Projects</p>
+     </div>
+     <div class="count-items count-item4"> <span>30</span>
+      <p>Commits</p>
+     </div>
+    </div> <!--About banner------------>
+    <div class="about-banner">
+     <div class="left-banner">
+      <p>Thank you for visiting us !!</p>
+     </div>
+    </div>
+   </div>
+  </section> <!--Footer-------------------->
+  <footer class="footer">
+   <div class="social">
+    <h2 class="md-heading">Contact</h2> <a href=""><i class="fa-brands fa-telegram fa-3x"></i></a> <a href=""><i class="fa-brands fa-facebook fa-3x"></i></a> <a href=""><i class="fa-brands fa-facebook-messenger fa-3x" id="contact"></i></a>
+   </div>
+   <p>all rights reserved</p>
+  </footer>
+ </body>
+</html>
