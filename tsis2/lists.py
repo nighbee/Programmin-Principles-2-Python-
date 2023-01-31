@@ -25,4 +25,6 @@ Allow Duplicates
   Since lists are indexed, lists can have items with the same value:
 """
 
-
+gr = int(input())
+ou = gr*28.33
+print(ou)
