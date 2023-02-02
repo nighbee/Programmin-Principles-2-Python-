@@ -59,6 +59,7 @@ point.show()
 print("Ur point moved, new coordinates:", point.move())
 print("Distance between ur points is: ", point.dist())
 
-#5
+#5 ???
+
 
 
