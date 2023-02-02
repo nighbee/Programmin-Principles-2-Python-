@@ -52,7 +52,7 @@ def rev(sent):
 sent=input()
 print(rev(sent))
 
-7
+# 7
 def has_33(nums):
     for i in range(len(nums) - 1):
         if nums[i] == 3 and nums[i + 1] == 3:
@@ -62,7 +62,7 @@ def has_33(nums):
 nums = [int(x) for x in input("Enter a list of integers, separated by spaces: ").split()]
 print(has_33(nums))
 
-8
+# 8
 def has_007(nums):
     for i in range(len(nums) - 2):
         if nums[i] == 0 and nums[i + 1] == 0 and nums[i+2]==7:
@@ -72,14 +72,14 @@ def has_007(nums):
 nums = [int(x) for x in input("Enter a list of integers, separated by spaces: ").split()]
 print(has_007(nums))
 
-9
+# 9
 def volSph(r):
     return (4/3*3.14*r*r)
 r= int(input())
 vol=volSph(r)
 print(vol)
 
-10
+# 10
 def unique(nums):
     uni_el=[]
     for elem in nums:
@@ -90,7 +90,7 @@ def unique(nums):
 nums=[int(x) for x in input("Enter a list of integers, separated by spaces: ").split()]
 print(unique(nums))
 
-11
+# 11
 def palin(st):
     if st == st[::-1]:
         return True
@@ -99,14 +99,14 @@ def palin(st):
 st= input()
 print(palin(st))
 
-12
+# 12
 def histo(nums):
     for i in nums:
         print('*'*i)
 nums=[int(x) for x in input("Enter a list of integers, separated by spaces: ").split()]
 print(histo(nums))
 
-13
+# 13
 print("Hello! Whats ur name? ")
 name=input()
 print("Well, ", name, "I am thinking of a num between 1 and 20.")
