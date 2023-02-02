@@ -43,7 +43,7 @@ class point:
     def show(self):
         print(f"Point({self.x,self.y})")
     def move(self):
-        self.addX=int(input("Change pos by x:"))
+        self.addX=int(input("Change pos by X:"))
         self.addY=int(input("Change pos by Y:"))
         self.x+=self.addX
         self.y+=self.addY
