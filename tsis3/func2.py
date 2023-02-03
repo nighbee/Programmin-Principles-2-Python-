@@ -1,5 +1,22 @@
 # Dictionary of movies
 
+def is_high_rated(movie):
+    return movie["imdb"]>5.5
+def higly_rated(movies):
+    return [movie for movie in movies if is_high_rated(movie)]
+def get_mov_cat(movies, category):
+    return [movie for movie in movies if movie["category"]==category]
+def av_imdb_score(movies):
+    total_score=0
+    for movie in movies:
+        total_score+=movie["imdb"]
+    return total_score/len(movies)
+
+def av_by_category(movies , category):
+    category_movies = get_mov_cat(movies, category)
+    return av_imdb_score(category_movies)
+
+
 movies = [
 {
 "name": "Usual Suspects",
@@ -77,3 +94,4 @@ movies = [
 "category": "Romance"
 }
 ]
+
