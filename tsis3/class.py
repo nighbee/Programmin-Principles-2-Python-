@@ -59,7 +59,27 @@ point.show()
 print("Ur point moved, new coordinates:", point.move())
 print("Distance between ur points is: ", point.dist())
 
-#5 ???
+#5 ХЗ мож так
+class BankAcc:
+    def __init__(self, owner, balance):
+        self.owner= owner
+        self.balance= balance
+    def deposit(self, summ):
+        self.balance+=summ
+        print(f"Deposit of {summ} accepted,total balance is {self.balance}")
+    def withdraw(self,summ):
+        if summ>self.balance:
+            print("Sum of withdraw too big!")
+        else:
+            self.balance-=summ
+            print(f"Your {summ} is on the way! Current balance is {self.balance}")
+
+name=input('Enter name:')
+balance=int(input("Enter bank balance:"))
+account=BankAcc(name, balance)
+account.deposit(int(input("Sum of deposit:")))
+account.withdraw((int(input("Sum of withdraw:"))))
+
 
 
 
