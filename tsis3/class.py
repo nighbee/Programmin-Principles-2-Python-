@@ -12,7 +12,6 @@ str.inp()
 str.out()
 
 
-
 #2
 class shape:
     def area(self):
@@ -80,6 +79,8 @@ account=BankAcc(name, balance)
 account.deposit(int(input("Sum of deposit:")))
 account.withdraw((int(input("Sum of withdraw:"))))
 
+
+#6 ??
 
 
 
