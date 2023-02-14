@@ -3,7 +3,7 @@ import aiogram.utils
 import aiogram.utils.markdown as md
 from aiogram import Bot, Dispatcher, executor, types
 
-OPENAI_API_KEY = "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"
+OPENAI_API_KEY = "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"
 
 # Initialize bot and dispatcher
 bot = Bot(token="5965750764:AAHcEVzjjcWDsipsPI-rmXEJIUtIbAGPuVM")

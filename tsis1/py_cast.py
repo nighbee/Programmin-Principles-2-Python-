@@ -1,7 +1,7 @@
 x = int(1)   # x will be 1
 y = int(2.8) # y will be 2
 z = int("3") # z will be 3
-
+print()
 x1 = float(1)     # x will be 1.0
 y1 = float(2.8)   # y will be 2.8
 z1 = float("3")   # z will be 3.0

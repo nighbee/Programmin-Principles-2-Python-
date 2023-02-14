@@ -29,21 +29,23 @@ else:
     print("Num of rabbits: ", rabbit)
 
 # 4 th prob
-def filt(nums):
-    def isPrime(num):
-        if num<2:
-            return False
-        else:
-            for i in range(2, int(nums**0.5)+1):
-                if num%i==0:
-                    return False
-        return True
-    return [num for num in nums if isPrime(num)]
 
-nums=map(int, input().split())
-print(filt(nums))
+# def filt(nums):
+#     def isPrime(num):
+#         if num<2:
+#             return False
+#         else:
+#             for i in range(2, int(nums**0.5)+1):
+#                 if num%i==0:
+#                     return False
+#         return True
+#     return [num for num in nums if isPrime(num)]
+#
+# nums=map(int, input().split())
+# print(filt(nums))
 
-# 5 ??
+
+# 5
 
 # 6TH PROB
 def rev(sent):
@@ -106,8 +108,3 @@ def histo(nums):
 nums=[int(x) for x in input("Enter a list of integers, separated by spaces: ").split()]
 print(histo(nums))
 
-# 13
-print("Hello! Whats ur name? ")
-name=input()
-print("Well, ", name, "I am thinking of a num between 1 and 20.")
-print("Take  a guess")

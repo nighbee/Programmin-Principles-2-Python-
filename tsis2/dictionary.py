@@ -14,6 +14,6 @@ When we say that dictionaries are ordered, it means that the items have a define
 Changeable
  Dictionaries are changeable, meaning that we can change, add or remove items after the dictionary has been created.
 Duplicates Not Allowed
- Dictionaries cannot have two items with the same key:
+ Dictionaries cannot have two items with the same key          :
 """
 #also can save different data types

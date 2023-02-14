@@ -80,7 +80,5 @@ account.deposit(int(input("Sum of deposit:")))
 account.withdraw((int(input("Sum of withdraw:"))))
 
 
-#6 ??
-
-
+    
 
