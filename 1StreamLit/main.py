@@ -13,7 +13,7 @@ def generate_response(prompt):
     )
     message=completion.choices[0].text
     return message
-st.title("ChatGPT web v0.01")
+st.title("StreamLit test + GPT")
 #storing the chat
 if 'generated' not in st.session_state:
     st.session_state['generated'] = []
