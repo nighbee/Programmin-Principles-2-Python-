@@ -16,6 +16,7 @@ t8='AlmazToktasinPp2malwaRehubShit'
 r8= re.split(r'[A-Z]', t8)
 print(r8)
 # 9 insert space before cap letter
-t9='AlmazToktasinKBTUsHit'
-r9=re
+t9='AlmazToktasinKbtusHit'
+r9=re.sub(r"(\w)([A-Z])", r"\1 \2", t9)
+print(r9)
 

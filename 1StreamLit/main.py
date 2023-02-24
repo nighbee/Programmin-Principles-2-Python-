@@ -1,7 +1,7 @@
 import openai
 import streamlit as st
 from streamlit_chat import message
-openai.api_key = "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"
+openai.api_key = "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"
 def generate_response(prompt):
     completion=openai.Completion.create(
         engine='text-davinci-003',
