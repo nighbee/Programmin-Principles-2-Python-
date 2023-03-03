@@ -29,28 +29,20 @@ def pal_or_not(s):
 r3=pal_or_not(str2)
 print(r3)
 #4 function of root after some time
-# Define the function to compute the square root after a specified number of milliseconds
 def sqrt_after_delay(number, delay):
-    # Wait for the specified number of milliseconds
     time.sleep(delay / 1000)
-
-    # Compute the square root of the number
     result = math.sqrt(number)
-
-    # Return the result
     return result
-
-
-# Test inputs
 number = 25100
 delay = 2123
-
-# Compute the square root after the specified delay
 result = sqrt_after_delay(number, delay)
-
-# Print the result
 print(f"Square root of {number} after {delay} milliseconds is {result}.")
 #5
+my_tuple=(True, True)
+if all(my_tuple):
+    print('All are true')
+else:
+    print('Not at all')
 
 
 
