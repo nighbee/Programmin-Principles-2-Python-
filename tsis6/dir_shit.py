@@ -6,7 +6,7 @@ print(os.listdir(path))
 #2
 if os.path.exists(path):
     filename=os.path.basename(path)
-    directory=os.path.diname(path)
+    directory=os.path.dirname(path)
     print(filename, directory)
 else:
     print('Not found')
