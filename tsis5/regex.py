@@ -17,7 +17,7 @@ pattern2=r'a[b]{2,3}'
 t2='abbb'
 r2=re.match(pattern2,t2)
 print(r2)
-#3 matches in string underscore
+#3 matches in string in lower case with underscore
 pattern3= r'[a-z]+_[a-z]+'
 t3='this_is_a_test_string'
 r3=re.match(pattern3, t3)

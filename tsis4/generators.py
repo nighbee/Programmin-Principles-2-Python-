@@ -7,7 +7,12 @@ even=[i for i in range(1,n+1) if i%2==0]
 print(even)
 #3
 def generate_shit(n):
-    return (num for num in range(n+1) if num%3==0 and num%4==0)
+    yield (num for num in range(n+1) if num%3==0 and num%4==0)
+# def generate(n):
+#     for nums in range(1, n+1):
+#         if nums%3==0 and nums%4==0:
+#             yield nums
+
 print(generate_shit(n))
 #4
 a=int(input())
