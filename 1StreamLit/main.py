@@ -1,7 +1,7 @@
 import openai
 import streamlit as st
 from streamlit_chat import message
-openai.api_key = "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"
+openai.api_key = "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"
 def generate_response(prompt):
     completion=openai.Completion.create(
         engine='text-davinci-003',
@@ -13,7 +13,7 @@ def generate_response(prompt):
     )
     message=completion.choices[0].text
     return message
-st.title("StreamLit test + GPT")
+st.title("StreamLit test")
 #storing the chat
 if 'generated' not in st.session_state:
     st.session_state['generated'] = []
