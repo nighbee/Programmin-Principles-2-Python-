@@ -12,13 +12,6 @@ def main():
     mode = 'blue'
     points = []
 
-    rad_circle= 10
-    def draw_circle(x,y):
-        for event in pygame.event.get():
-            if event.type==pygame.KEYDOWN:
-                if event.key==pygame.K_c:
-                    pygame.draw.circle(screen, (255,255,255), (x,y) , rad_circle)
-
 
     while True:
 
@@ -47,8 +40,6 @@ def main():
                     mode = 'green'
                 elif event.key == pygame.K_b:
                     mode = 'blue'
-                elif event.key== pygame.K_c:
-                    draw_circle()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:  # left click grows radius
                     radius = min(200, radius + 1)

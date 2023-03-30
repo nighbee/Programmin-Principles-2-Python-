@@ -60,3 +60,11 @@ except StopIteration:
 
 # Quit
 pygame.quit()
+
+
+""" 
+        for event in pygame.event.get():
+            if event.type==pygame.KEYDOWN:
+                if event.key==pygame.K_c:
+                    pygame.draw.circle(screen, (255,255,255), (x,y) , rad_circle)
+"""
