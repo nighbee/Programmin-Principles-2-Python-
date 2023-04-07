@@ -30,7 +30,6 @@ game_over = font.render("Game Over", True, BLACK)
 
 background = pygame.image.load("AnimatedStreet.png")
 coin = pygame.image.load("coin.png")
-denar =pygame.image.load("denar.png")
 # Create a white screen
 DISPLAYSURF = pygame.display.set_mode((400, 600))
 DISPLAYSURF.fill(WHITE)
@@ -43,33 +42,19 @@ score_coin = 0
 class coin(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-
         self.image = pygame.image.load("coin.png")
         self.image = pygame.transform.scale(self.image, (40, 40))
         self.rect = self.image.get_rect()
         self.rect.center = (random.randint(40, SCREEN_WIDTH - 40), 0)
 
-    def move(self):
-        self.rect.move_ip(0, SPEED)
-        if (self.rect.top > 600):
-            self.kill()
-
     # def score(score):
     #     value=score_font.render("Ur score: "+str(score),True, BLACK)
 
-#new coin DENAR
-class denar(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        self.image = pygame.image.load("denar.png")
-        self.image = pygame.transform.scale(self.image, (40, 40))
-        self.rect = self.image.get_rect()
-        self.rect.center = (random.randint(40, SCREEN_WIDTH - 40), 0)
-
     def move(self):
         self.rect.move_ip(0, SPEED)
         if (self.rect.top > 600):
             self.kill()
+
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self):
@@ -109,7 +94,6 @@ class Player(pygame.sprite.Sprite):
 P1 = Player()
 E1 = Enemy()
 C1 = coin()
-D1 = denar()
 
 # Creating Sprites Groups
 enemies = pygame.sprite.Group()
@@ -120,7 +104,6 @@ all_sprites.add(E1)
 # coins=pygame.sprite.Group()
 # coins.add(C1)
 coins = pygame.sprite.Group()
-dinars = pygame.sprite.Group()
 
 # Adding a new User event
 INC_SPEED = pygame.USEREVENT + 1
@@ -147,9 +130,6 @@ while True:
         DISPLAYSURF.blit(entity.image, entity.rect)
         if isinstance(entity, coin) and pygame.sprite.collide_rect(entity, P1):
             entity.kill()
-            score_coin += 3
-        elif isinstance(entity, denar) and pygame.sprite.collide_rect(entity, P1):
-            entity.kill()
             score_coin += 1
             # value=score_font.render("Your score: "+ str(score_coin), True, BLACK)
             # DISPLAYSURF.blit(value, [SCREEN_WIDTH, 0])
@@ -158,10 +138,6 @@ while True:
         C1 = coin()
         all_sprites.add(C1)
         coins.add(C1)
-
-        D1 = denar()
-        all_sprites.add(D1)
-        dinars.add(D1)
 
     # To be run if collision occurs between Player and Enemy
     if pygame.sprite.spritecollideany(P1, enemies):
@@ -178,7 +154,10 @@ while True:
         pygame.quit()
         sys.exit()
 
-
+        # if pygame.sprite.spritecollideany(P1, coins):
+    #     score_coin+=1
+    #     value= score_font.render("your score: "+str(score_coin), True, BLACK)
+    #     DISPLAYSURF.blit(value, [0,0])
     coin_score_text = score_font.render("coins: " + str(score_coin), True, BLACK)
     coin_score_rect = coin_score_text.get_rect()
     coin_score_rect.topright = (SCREEN_WIDTH - 10, 10)
