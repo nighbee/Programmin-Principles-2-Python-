@@ -112,8 +112,16 @@ def gameLoop():
         x1 += x1_change
         y1 += y1_change
         dis.fill(black)
-        pygame.draw.rect(dis, green, [foodx, foody, snake_block, snake_block])
+        weight=[1,2,3]
+        food_weight= random.choice(weight)
+        if food_weight==1:
+            pygame.draw.rect(dis, green, [foodx, foody, snake_block, snake_block])
+        elif food_weight==2:
+            pygame.draw.rect(dis, blue, [foodx, foody, snake_block, snake_block])
+        elif food_weight==3:
+            pygame.draw.rect(dis, red, [foodx, foody, snake_block, snake_block])
         pygame.draw.rect(dis, red, [poisonx, poisony, snake_block, snake_block])
+
         snake_Head = []
         snake_Head.append(x1)
         snake_Head.append(y1)
@@ -134,7 +142,12 @@ def gameLoop():
         if x1 == foodx and y1 == foody:
             foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
             foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
-            Length_of_snake += 1
+            if food_weight==1:
+                Length_of_snake += 1
+            elif food_weight==2:
+                Length_of_snake+=2
+            elif food_weight==3:
+                Length_of_snake+=3
             mixer.music.load('apple.wav')
             mixer.music.play()
         elif x1==poisonx and y1== poisony:
