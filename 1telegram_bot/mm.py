@@ -1,42 +1,36 @@
-import aiohttp
-import aiogram.utils
-import aiogram.utils.markdown as md
-# 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
-from aiogram import Bot, Dispatcher, executor, types, utils
-API_TOKEN='5965750764:AAHcEVzjjcWDsipsPI-rmXEJIUtIbAGPuVM'
-bot = Bot(token=API_TOKEN)
-dp = Dispatcher(bot)
-@dp.message_handler(commands=['start'])
-async def send_welcome(message:types.Message):
-    await message.reply("hello there, send me request!")
-@dp.message_handler()
-async def echo(message: types.Message):
-    await message.answer(message.text)
-if __name__ == '__main__':
-    executor.start_polling(dp, skip_updates=True)
+import openai
+import torch
+from aiogram import Bot, Dispatcher, executor, types
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
-# connecting ChatGPT
-# chatgpt_url= 'https://api.openai.com/v1/engines/chatbot/jobs'
-# async def chatgpt_response(message):
-#     headers ={
-#         'Content-Type': 'application/json',
-#         'Authorization':f'bearer {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}'
-#     }
-#     data = {
-#         'engine': 'text-davinci-002',
-#         'prompt': message,
-#         'temperature': 0.5,
-#         'max_tokens': 100,
-#         'top_p': 1,
-#         'frequency_penalty': 0,
-#         'presence_penalty': 0
-#     }
-# async with aiohttp.ClientSession() as session:
-#     async with session.post(chatgpt_url) as resp:
-#         response_text= await resp.json()
-#         return response_text['choices'][0]['text']
-# @dp.message_handler(commands='start')
-# async def cmd_start(message: Message):
-#     await bot.send_message(chat_id=message.chat.id, text='hi! i am chatgpt powered bot, how i can help?')
-# if __name__ == '__main__'
-#     executor.start_polling(dp, skip_updates=True)
+botToken = '5965750764:AAGzp7lxFO0Se2s_uBYmYL6LiOL_iRx-Jg4'
+openAi = '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'
+model_name = "microsoft/DialoGPT-large"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForCausalLM.from_pretrained(model_name)
+
+bot = Bot(token=botToken)
+dp = Dispatcher(bot)
+
+async def welcome(message: types.Message):
+    await message.reply('Hi, how can I help?')
+
+async def comprehend(prompt: str, model, tokenizer) -> str:
+    # Encode the prompt and generate the response
+    prompt = 'User: ' + prompt + '\nAI:'
+    prompt_input = tokenizer.encode(prompt, return_tensors='pt')
+    generated_output = model.generate(prompt_input, max_length=1000, pad_token_id=tokenizer.eos_token_id)
+    response = tokenizer.decode(generated_output[:, prompt_input.shape[-1]:][0], skip_special_tokens=True)
+
+    return response
+
+async def echo(message: types.Message):
+    prompt = message.text
+    response = await comprehend(prompt, model, tokenizer)
+
+    await message.answer(response)
+
+if __name__ == '__main__':
+    dp.register_message_handler(welcome, commands=['start'])
+    dp.register_message_handler(echo)
+    executor.start_polling(dp, skip_updates=True)
