@@ -50,6 +50,12 @@ def message(msg, color):
     mesg = font_style.render(msg, True, color)
     dis.blit(mesg, [dis_width / 6, dis_height / 3])
 
+
+#timer shit
+food_timer=3000
+food_timer_event= pygame.USEREVENT+1
+pygame.time.set_timer(food_timer_event, food_timer)
+clock=pygame.time.Clock()
 # main gameloop
 def gameLoop():
     game_over = False

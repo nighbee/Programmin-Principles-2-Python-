@@ -1,5 +1,6 @@
 import pygame
 import time
+import math
 # Initialize Pygame
 pygame.init()
 
@@ -55,8 +56,10 @@ color_buttons = [
 # Define the eraser button
 eraser_button = pygame.Rect(310, 10, 50, 50)
 save_button=pygame.Rect(370, 10, 50 , 50)
+# draw_squareButton= pygame.Rect(430,10,50,50)
 # Set the program loop
 running = True
+drawing_square= False
 while running:
     # Event loop
     for event in pygame.event.get():
@@ -73,16 +76,34 @@ while running:
             if save_button.collidepoint(event.pos):
                 pygame.image.save(screen, "screenshot"+str(imgNum)+".jpg")
                 imgNum+=1
+            # if event.button ==1:
+            #     square_size= 50
+            #     square_pos=(event.pos[0]-square_size/2, event.pos[1]-square_size/2)
+            #     pygame.draw.rect(screen, brush_color, pygame.Rect(square_pos, (square_size, square_size)))
         elif event.type == pygame.MOUSEMOTION:
             # Draw with the brush on mouse motion
             if pygame.mouse.get_pressed()[0]:
                 pygame.draw.circle(screen, brush_color, event.pos, brush_size)
 
-        elif event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key==pygame.K_F1:
-                    imgNum+=1
-                    pygame.image.save(screen, "screenshot" + str(imgNum)+ ".jpg")
+        elif event.type == pygame.KEYDOWN:
+            x, y = pygame.mouse.get_pos()
+            if event.key==pygame.K_s:
+                square_size  = 70
+                pygame.draw.rect(screen, brush_color, (x, y, square_size, square_size))
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+                pygame.draw.polygon(screen, brush_color, [(100, 100), (100, 200), (200, 200)])
+
+                # Draw an equilateral triangle when the 'E' key is pressed
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_e:
+                a = 100
+                h = math.sqrt(3) / 2 * a
+                pygame.draw.polygon(screen, brush_color, [(100, 100), (100 + a, 100), (100 + a / 2, 100 + h)])
+
+                # Draw a rhombus when the 'B' key is pressed
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_b:
+                pygame.draw.polygon(screen, brush_color, [(200, 200), (300, 200), (350, 250), (250, 250)])
+
     # Draw the color buttons
     for button in color_buttons:
         pygame.draw.rect(screen, button['color'], button['rect'])
