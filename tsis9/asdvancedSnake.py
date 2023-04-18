@@ -28,17 +28,29 @@ pygame.display.set_caption('Snake Game')
 
 clock = pygame.time.Clock()
 
+#adding levels
+curr_level=0
+levels=[i for i in range(100) if i%10]
+
 #adjusting snake
 snake_block = 10
 snake_speed = 10
 
 font_style = pygame.font.SysFont("bahnschrift", 25)
-score_font = pygame.font.SysFont("comicsansms", 35)
+score_font = pygame.font.SysFont("comicsansms", 25)
+level_font= pygame.font.SysFont("comicsansms", 25)
+
 
 #updating and showing ur score
 def Your_score(score):
     value = score_font.render("Your Score: " + str(score), True, yellow)
     dis.blit(value, [0, 0])
+
+
+# level class
+def user_level(curr_level):
+    value= level_font.render("Your Level: "+ str(curr_level), True, yellow)
+    dis.blit(value, [dis_width-10, 0])
 
 # logic of snake when +1 fruit
 def our_snake(snake_block, snake_list):
@@ -139,6 +151,10 @@ def gameLoop():
         for x in snake_List[:-1]:
             if x == snake_Head:
                 game_close = True
+
+        # for snake_lenght in levels:
+        #     if Length_of_snake == snake_lenght:
+        #         snake_speed+=1
 
         our_snake(snake_block, snake_List)
         Your_score(Length_of_snake - 1)
