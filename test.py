@@ -264,3 +264,13 @@ main_loop()
 
 list = pygame.font.get_fonts()
 print(list)
+
+
+# #data
+# # Connect to the database
+# conn = psycopg2.connect(database="snakeuser", user="postgres", password="72zv5u3xp")
+# cur = conn.cursor()
+#
+# # Create the contacts table
+# cur.execute("CREATE TABLE  user_name_snake (id SERIAL PRIMARY KEY, nick VARCHAR(50) NOT NULL")
+# cur.execute("CREATE TABLE user_score (id SERIAL PRIMARY KEY, score INTEGER NOT  NULL, level NOT NULL")
