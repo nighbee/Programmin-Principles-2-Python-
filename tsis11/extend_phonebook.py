@@ -27,6 +27,16 @@ while True:
     phone_number = input("Enter phone number: ")
     cur.execute("INSERT INTO pp_phone_book (first_name, last_name, phone_number) VALUES (%s, %s, %s)", (first_name, last_name, phone_number))
 
+## all same records
+pat_first_name= input("Enter ur search first name: ")
+pat_last_name= input("Enter ur search last name: ")
+pat_number= input("Enter number for search: ")
+cur.execute("SELECT * FROM contacts where first_name LIKE %s OR last_name LIKE %s OR phone_number LIKE %s ", ('%s'+pat_first_name+'%s', '%s'+pat_last_name+'%s', '%s'+pat_number+'%s'))
+s_rows= cur.fetchall()
+for s_row in s_rows:
+    print(f"{s_row[0]} - {s_row[1]} {s_row[2]}: {s_row[3]}")
+
+
 # Update data
 id = input("Enter contact ID to update: ")
 new_first_name = input("Enter new first name (or leave blank to skip): ")

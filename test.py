@@ -1,276 +1,238 @@
-# import library
 import pygame
+import time
 import random
+import psycopg2
 
+# Connect to the PostgreSQL database
+conn = psycopg2.connect(
+    host="localhost",
+    database="snake_game",
+    user="postgres",
+    password="your_password"
+)
+
+# Create a cursor object
+cur = conn.cursor()
+
+# Create users table
+cur.execute('''
+    CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(50) UNIQUE,
+        level INTEGER DEFAULT 1
+    )
+''')
+conn.commit()
+
+# Create scores table
+cur.execute('''
+    CREATE TABLE IF NOT EXISTS scores (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id),
+        score INTEGER,
+        level INTEGER,
+        date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+''')
+conn.commit()
+
+# Close the cursor and database connection
+cur.close()
+conn.close()
+
+# initialization
 pygame.init()
 
-# Setting window size
-win_x = 500
-win_y = 500
+# defining colors
+white = (255, 255, 255)
+yellow = (255, 255, 102)
+black = (0, 0, 0)
+red = (213, 50, 80)
+green = (0, 255, 0)
+blue = (50, 153, 213)
 
-win = pygame.display.set_mode((win_x, win_y))
-pygame.display.set_caption('Paint')
+# defining screen
+dis_width = 600
+dis_height = 400
+dis = pygame.display.set_mode((dis_width, dis_height))
+pygame.display.set_caption('Snake Game')
 
+clock = pygame.time.Clock()
 
-# Class for drawing
-class drawing(object):
+# adjusting snake
+snake_block = 10
+snake_speed = 15
 
-    def __init__(self):
-        '''constructor'''
-        self.color = (0, 0, 0)
-        self.width = 10
-        self.height = 10
-        self.rad = 6
-        self.tick = 0
-        self.time = 0
-        self.play = False
+font_style = pygame.font.SysFont("bahnschrift", 25)
+score_font = pygame.font.SysFont("comicsansms", 35)
 
-    # Drawing Function
-    def draw(self, win, pos):
-        pygame.draw.circle(win, self.color, (pos[0], pos[1]), self.rad)
-        if self.color == (255, 255, 255):
-            pygame.draw.circle(win, self.color, (pos[0], pos[1]), 20)
+# updating and showing ur score
+def Your_score(score):
+    value = score_font.render("Your Score: " + str(score), True, yellow)
+    dis.blit(value, [0, 0])
 
-    # detecting clicks
-    def click(self, win, list, list2):
-        pos = pygame.mouse.get_pos()  # Localização do mouse
+# logic of snake when +1 fruit
+def our_snake(snake_block, snake_list):
+    for x in snake_list:
+        pygame.draw.rect(dis, white, [x[0], x[1], snake_block, snake_block])
 
-        if pygame.mouse.get_pressed() == (1, 0, 0) and pos[0] < 400:
-            if pos[1] > 25:
-                self.draw(win, pos)
-        elif pygame.mouse.get_pressed() == (1, 0, 0):
-            for button in list:
-                if pos[0] > button.x and pos[0] < button.x + button.width:
-                    if pos[1] > button.y and pos[1] < button.y + button.height:
-                        self.color = button.color2
-            for button in list2:
-                if pos[0] > button.x and pos[0] < button.x + button.width:
-                    if pos[1] > button.y and pos[1] < button.y + button.height:
-                        if self.tick == 0:
-                            if button.action == 1:
-                                win.fill((255, 255, 255))
-                                self.tick += 1
-                            if button.action == 2 and self.rad > 4:
-                                self.rad -= 1
-                                self.tick += 1
-                                pygame.draw.rect(
-                                    win, (255, 255, 255), (410, 308, 80, 35))
+# message showing
+def message(msg, color):
+    mesg = font_style.render(msg, True, color)
+    dis.blit(mesg, [dis_width / 6, dis_height / 3])
 
-                            if button.action == 3 and self.rad < 20:
-                                self.rad += 1
-                                self.tick += 1
-                                pygame.draw.rect(
-                                    win, (255, 255, 255), (410, 308, 80, 35))
+# function to insert user into the database
+def insert_user(username):
+    conn = psycopg2.connect(
+        database="snakeuser",
+        user="postgres",
+        password="72zv5u3xp"
+    )
+    cur = conn.cursor()
+    cur.execute("SELECT id FROM users WHERE username = %s", (username,))
+    user = cur.fetchone()
+    if user is None:
+        cur.execute("INSERT INTO users (username) VALUES (%s)", (username,))
+        conn.commit()
+        cur.execute("SELECT id FROM users WHERE username = %s", (username,))
+        user = cur.fetchone()
+    cur.close()
+    conn.close()
+    return user[0]
 
-                            if button.action == 5 and self.play == False:
-                                self.play = True
-                                game()
-                                self.time += 1
-                            if button.action == 6:
-                                self.play = False
-                                self.time = 0
+# function to get user's current score from the database
+def get_user_score(user_id):
+    conn = psycopg2.connect(
+        host="localhost",
+        database="snake_game",
+        user="postgres",
+        password="your_password"
+    )
+    cur = conn.cursor()
+    cur.execute("SELECT COALESCE(SUM(score), 0) FROM scores WHERE user_id = %s", (user_id,))
+    user_score = cur.fetchone()[0]
+    cur.close()
+    conn.close()
+    return user_score
 
-        for button in list2:
-            if button.action == 4:
-                button.text = str(self.rad)
+# main gameloop
+def gameLoop():
+    game_over = False
+    game_close = False
 
-            if button.action == 7 and self.play == True:
-                button.text = str(40 - (player1.time // 100))
-            if button.action == 7 and self.play == False:
-                button.text = 'Time'
+    # prompt user to enter their username
+    username = input("Enter your username: ")
+    user_id = insert_user(username)
+    user_score = get_user_score(user_id)
+    print(f"Welcome back, {username}! Your current score is {user_score}.")
 
+    x1 = dis_width / 2
+    y1 = dis_height / 2
 
-# Class for buttons
-class button(object):
+    x1_change = 0
+    y1_change = 0
 
-    def __init__(self, x, y, width, height, color, color2, outline=0, action=0, text=''):
-        self.x = x
-        self.y = y
-        self.height = height
-        self.width = width
-        self.color = color
-        self.outline = outline
-        self.color2 = color2
-        self.action = action
-        self.text = text
+    snake_List = []
+    Length_of_snake = 1
 
-    # Class for drawing buttons
-    def draw(self, win):
-        pygame.draw.rect(win, self.color, (self.x, self.y,
-                                           self.width, self.height), self.outline)
-        font = pygame.font.SysFont('comicsans', 30)
-        text = font.render(self.text, 1, self.color2)
-        pygame.draw.rect(win, (255, 255, 255), (410, 446, 80, 35))
-        # pygame.draw.rect(win, (255, 255, 255), (410, 308, 80, 35))
-        win.blit(text, (int(self.x + self.width / 2 - text.get_width() / 2),
-                        int(self.y + self.height / 2 - text.get_height() / 2)))
+    # random food spawn
+    foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
+    foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
 
+    while not game_over:
 
-def drawHeader(win):
-    # Drawing header space
-    pygame.draw.rect(win, (175, 171, 171), (0, 0, 500, 25))
-    pygame.draw.rect(win, (0, 0, 0), (0, 0, 400, 25), 2)
-    pygame.draw.rect(win, (0, 0, 0), (400, 0, 100, 25), 2)
+        # condition of game stop
+        while game_close == True:
+            dis.fill(black)
+            message("You Lost! Press C-Play Again or Q-Quit", red)
+            Your_score(Length_of_snake - 1)
+            pygame.display.update()
+            #paly again or not window
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_q:
+                        game_over = True
+                        game_close = False
+                    if event.key == pygame.K_c:
+                        gameLoop()
 
-    # Printing header
-    font = pygame.font.SysFont('comicsans', 30)
-
-    canvasText = font.render('Canvas', 1, (0, 0, 0))
-    win.blit(canvasText, (int(200 - canvasText.get_width() / 2),
-                          int(26 / 2 - canvasText.get_height() / 2) + 2))
-
-    toolsText = font.render('Tools', 1, (0, 0, 0))
-    win.blit(toolsText, (int(450 - toolsText.get_width() / 2),
-                         int(26 / 2 - toolsText.get_height() / 2 + 2)))
-
-
-def draw(win):
-    player1.click(win, Buttons_color, Buttons_other)
-
-    pygame.draw.rect(win, (0, 0, 0), (400, 0, 100, 500),
-                     2)  # Drawing button space
-    pygame.draw.rect(win, (255, 255, 255), (400, 0, 100, 500), )
-    pygame.draw.rect(win, (0, 0, 0), (0, 0, 400, 500),
-                     2)  # Drawing canvas space
-    drawHeader(win)
-
-    for button in Buttons_color:
-        button.draw(win)
-
-    for button in Buttons_other:
-        button.draw(win)
-
-    pygame.display.update()
-
-
-def main_loop():
-    run = True
-    while run:
+        # handling arrow keys
         keys = pygame.key.get_pressed()
         for event in pygame.event.get():
-            if event.type == pygame.QUIT or keys[pygame.K_ESCAPE]:
-                run = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    # pause the game and save the current state and score to the database
+                    cur_score = Length_of_snake - 1
+                    cur.execute("INSERT INTO scores (user_id, score, level) VALUES (%s, %s, %s)", (user_id, cur_score, 1))
+                    conn.commit()
+                    print(f"Game paused. Your score has been saved to the database. Your current score is {Length_of_snake - 1}.")
+                    while True:
+                        for event in pygame.event.get():
+                            if event.type == pygame.KEYDOWN:
+                                if event.key == pygame.K_ESCAPE:
+                                    print("Resuming game...")
+                                    break
+                        else:  # execute when the inner loop is not broken
+                            continue
+                        # execute when the inner loop is broken
+                        break
 
-        draw(win)
+            if keys[pygame.K_LEFT]:
+                x1_change = -snake_block
+                y1_change = 0
+            elif keys[pygame.K_RIGHT]:
+                x1_change = snake_block
+                y1_change = 0
+            elif keys[pygame.K_UP]:
+                y1_change = -snake_block
+                x1_change = 0
+            elif keys[pygame.K_DOWN]:
+                y1_change = snake_block
+                x1_change = 0
 
-        if 0 < player1.tick < 40:
-            player1.tick += 1
-        else:
-            player1.tick = 0
+        # hitting boundaries
+        if x1 >= dis_width or x1 < 0 or y1 >= dis_height or y1 < 0:
+            game_close = True
+        x1 += x1_change
+        y1 += y1_change
+        dis.fill(black)
+        pygame.draw.rect(dis, green, [foodx, foody, snake_block, snake_block])
+        snake_Head = []
+        snake_Head.append(x1)
+        snake_Head.append(y1)
+        snake_List.append(snake_Head)
+        if len(snake_List) > Length_of_snake:
+            del snake_List[0]
 
-        if 0 < player1.time < 4001:
-            player1.time += 1
-        elif 4000 < player1.time < 4004:
-            gameOver()
-            player1.time = 4009
-        else:
-            player1.time = 0
-            player1.play = False
+        for x in snake_List[:-1]:
+            if x == snake_Head:
+                game_close = True
 
+        our_snake(snake_block, snake_List)
+        Your_score(Length_of_snake - 1)
+
+        pygame.display.update()
+
+        # when the snake hits the food
+        if x1 == foodx and y1 == foody:
+            foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
+            foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
+            Length_of_snake += 1
+            print("Yummy!!")
+
+        clock.tick(snake_speed)
+
+    # closing pygame module
     pygame.quit()
 
+# starting the game
+gameLoop()
 
-def game():
-    object = ['Casa', 'cachoro', 'caneta', 'bola de futebol', 'caneca', 'Computador',
-              'Chocolate', 'Jesus', 'Celular', 'Iphone', 'Teclado(instrumento)', 'teclado(computador)']
-
-    font = pygame.font.SysFont('comicsans', 40)
-    font2 = pygame.font.SysFont('comicsans', 25)
-    text = font.render('Sua Palavra é: ' +
-                       object[random.randint(0, (len(object) - 1))], 1, (255, 0, 0))
-    Aviso = font2.render('Somente deve olhar essa tela a pessoa que vai desenhar:', 1,
-                         (255, 0, 0))
-    Aviso2 = font.render('Agora pode olhar', 1,
-                         (255, 0, 0))
-    i = 0
-    time = 1500
-    while i < 1500:
-        pygame.time.delay(10)
-        i += 1
-        icount = int((1500 / 100) - (i // 100))
-        time = font.render(str(icount), 1, (255, 0, 0))
-        win.fill((255, 255, 255))
-        if int(icount) > 10:
-            win.blit(Aviso, (int(5), int(250 - Aviso.get_height() / 2)))
-        elif 5 < int(icount) < 11:
-            win.blit(Aviso, (int(5), int(100 - text.get_height() / 2)))
-            win.blit(text, (int(250 - text.get_width() / 2),
-                            int(250 - text.get_height() / 2)))
-        else:
-            win.blit(Aviso2, (int(250 - Aviso2.get_width() / 2),
-                              int(250 - Aviso2.get_height() / 2)))
-
-        win.blit(time, (int(250 - time.get_width() / 2), 270))
-        pygame.display.update()
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                i = 1001
-                pygame.quit()
-    win.fill((255, 255, 255))
-
-
-# Ending Function
-def gameOver():
-    font = pygame.font.SysFont('comicsans', 40)
-    text = font.render('GAME OVER', 1, (255, 0, 0))
-    i = 0
-    while i < 700:
-        pygame.time.delay(10)
-        i += 1
-
-        win.fill((255, 255, 255))
-        win.blit(text, (int(250 - text.get_width() / 2),
-                        250 - text.get_height() / 2))
-        pygame.display.update()
-        print(7 - (i // 100))
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                i = 1001
-                pygame.quit()
-    win.fill((255, 255, 255))
-
-
-player1 = drawing()
-# Fill colored to our paint
-win.fill((255, 255, 255))
-pos = (0, 0)
-
-# Defining color buttons
-redButton = button(453, 30, 40, 40, (255, 0, 0), (255, 0, 0))
-blueButton = button(407, 30, 40, 40, (0, 0, 255), (0, 0, 255))
-greenButton = button(407, 76, 40, 40, (0, 255, 0), (0, 255, 0))
-orangeButton = button(453, 76, 40, 40, (255, 192, 0), (255, 192, 0))
-yellowButton = button(407, 122, 40, 40, (255, 255, 0), (255, 255, 0))
-purpleButton = button(453, 122, 40, 40, (112, 48, 160), (112, 48, 160))
-blackButton = button(407, 168, 40, 40, (0, 0, 0), (0, 0, 0))
-whiteButton = button(453, 168, 40, 40, (0, 0, 0), (255, 255, 255), 1)
-
-# Defining other buttons
-clrButton = button(407, 214, 86, 40, (201, 201, 201), (0, 0, 0), 0, 1, 'Clear')
-
-smallerButton = button(407, 260, 40, 40, (201, 201, 201), (0, 0, 0), 0, 2, '-')
-biggerButton = button(453, 260, 40, 40, (201, 201, 201), (0, 0, 0), 0, 3, '+')
-sizeDisplay = button(407, 306, 86, 40, (0, 0, 0), (0, 0, 0), 1, 4, 'Size')
-playButton = button(407, 352, 86, 40, (201, 201, 201), (0, 0, 0), 0, 5, 'Play')
-stopButton = button(407, 398, 86, 40, (201, 201, 201), (0, 0, 0), 0, 6, 'Stop')
-timeDisplay = button(407, 444, 86, 40, (0, 0, 0), (0, 0, 0), 1, 7, 'Time')
-
-Buttons_color = [blueButton, redButton, greenButton, orangeButton,
-                 yellowButton, purpleButton, blackButton, whiteButton]
-Buttons_other = [clrButton, smallerButton, biggerButton,
-                 sizeDisplay, playButton, stopButton, timeDisplay]
-
-main_loop()
-
-list = pygame.font.get_fonts()
-print(list)
-
-
-# #data
-# # Connect to the database
-# conn = psycopg2.connect(database="snakeuser", user="postgres", password="72zv5u3xp")
-# cur = conn.cursor()
-#
-# # Create the contacts table
-# cur.execute("CREATE TABLE  user_name_snake (id SERIAL PRIMARY KEY, nick VARCHAR(50) NOT NULL")
-# cur.execute("CREATE TABLE user_score (id SERIAL PRIMARY KEY, score INTEGER NOT  NULL, level NOT NULL")
+## all same records
+pat_first_name= input("Enter ur search first name: ")
+pat_last_name= input("Enter ur search last name: ")
+pat_number= input("Enter number for search: ")
+cur.execute("SELECT * FROM contacts where first_name LIKE %s OR last_name LIKE %s OR phone_number LIKE %s ", ('%s'+pat_first_name+'%s', '%s'+pat_last_name+'%s', '%s'+pat_number+'%s'))
+s_rows= cur.fetchall()
+for s_row in s_rows:
+    print(f"{s_row[0]} - {s_row[1]} {s_row[2]}: {s_row[3]}")
