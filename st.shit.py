@@ -77,7 +77,7 @@ def insert_user(username):
     return user[0]
 
 def get_user_score(user_id):
-    cur.execute("SELECT COALESCE(SUM(score), 0) FROM scores WHERE user_id =%s", (user_id,) )
+    cur.execute("SELECT FROM scores WHERE user_id =%s ORDERED BY created_at DESC LIMIT 1;", (user_id, ) )
     user_score=cur.fetchone()[0]
     return user_score
 
@@ -122,7 +122,14 @@ def gameLoop():
     foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
     foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
 
+    # poison spawn
+    poisonx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
+    poisony = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
     while not game_over:
+        game_end_score = Length_of_snake - 1
+        if userscore < game_end_score:
+            cur.execute("INSERT INTO scores (user_id, score) VALUES (%s,%s)", (user_id, str(game_end_score)))
+            conn.commit()
 
         # condition of game stop
         while game_close == True:
@@ -131,10 +138,6 @@ def gameLoop():
             Your_score(Length_of_snake - 1)
             # cur.execute("INSERT INTO users (username) VALUES =%s", (username,))
             # conn.commit()
-            game_end_score=Length_of_snake-1
-            if userscore < game_end_score:
-                cur.execute("INSERT INTO scores (user_id, score) VALUES (%s,%s)", (user_id, str(game_end_score)))
-                conn.commit()
 
             pygame.display.update()
             #paly again or not window
@@ -195,6 +198,7 @@ def gameLoop():
             pygame.draw.rect(dis, blue, [foodx,foody,snake_block,snake_block])
         elif food_weight==3:
             pygame.draw.rect(dis, yellow, [foodx, foody, snake_block, snake_block])
+        pygame.draw.rect(dis, red, [poisonx, poisony, snake_block, snake_block])
         snake_Head = []
         snake_Head.append(x1)
         snake_Head.append(y1)
@@ -211,16 +215,16 @@ def gameLoop():
 
         pygame.display.update()
 
-        #walls
-        num_walls=10
-        walls=[]
-        for i in range(num_walls):
-            wallx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
-            wally = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
-            walls.append((wallx, wally))
-
-        if snake_Head in walls:
-            game_over=True
+        # #walls
+        # num_walls=10
+        # walls=[]
+        # for i in range(num_walls):
+        #     wallx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
+        #     wally = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
+        #     walls.append((wallx, wally))
+        #
+        # if snake_Head in walls:
+        #     game_over=True
 
 
         if x1 == foodx and y1 == foody:
@@ -232,6 +236,12 @@ def gameLoop():
                 Length_of_snake+=2
             elif food_weight==3:
                 Length_of_snake+=3
+        elif x1==poisonx and y1==poisony:
+            poisonx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
+            poisony = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
+            Length_of_snake -= 1
+            snake_List.pop()
+            our_snake(snake_block, snake_List)
 
         clock.tick(snake_speed)
 

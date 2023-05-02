@@ -51,7 +51,7 @@ cur.execute('''
     CREATE TABLE IF NOT EXISTS scores (
         id SERIAL PRIMARY KEY,
         user_id INTEGER REFERENCES users(id),
-        score TEXT
+        score INTEGER
     )
 ''')
 conn.commit()
@@ -77,9 +77,12 @@ def insert_user(username):
     return user[0]
 
 def get_user_score(user_id):
-    cur.execute("SELECT COALESCE(SUM(score), 0) FROM scores WHERE user_id =%s", (user_id,) )
-    user_score=cur.fetchone()[0]
-    return user_score
+    cur.execute("SELECT score FROM scores WHERE user_id =%s", (user_id,) )
+    user_score=cur.fetchone()
+    if user_score:
+        return user_score[0]
+    else:
+        return 0
 
 #updating and showing ur score
 def Your_score(score):
@@ -121,7 +124,8 @@ def gameLoop():
     #random food spawn
     foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
     foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
-
+    poisonx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
+    poisony = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
     while not game_over:
 
         # condition of game stop
@@ -132,8 +136,8 @@ def gameLoop():
             # cur.execute("INSERT INTO users (username) VALUES =%s", (username,))
             # conn.commit()
             game_end_score=Length_of_snake-1
-            if userscore < game_end_score:
-                cur.execute("INSERT INTO scores (user_id, score) VALUES (%s,%s)", (user_id, str(game_end_score)))
+            if game_end_score>userscore:
+                cur.execute("UPDATE scores SET score=%s WHERE score=%s", (game_end_score, userscore))
                 conn.commit()
 
             pygame.display.update()
@@ -164,7 +168,7 @@ def gameLoop():
                     x1_change = 0
                 elif event.key== pygame.K_SPACE:
                     cur_score=Length_of_snake-1
-                    cur.execute("INSERT INTO scores (user_id, score) VALUES (%s,%s)", (user_id,str(cur_score)))
+                    cur.execute("UPDATE scores SET score=%s WHERE score=%s", (cur_score, userscore))
                     conn.commit()
                     print(f"Game paused, current score committed in database")
                     while True:
@@ -195,6 +199,7 @@ def gameLoop():
             pygame.draw.rect(dis, blue, [foodx,foody,snake_block,snake_block])
         elif food_weight==3:
             pygame.draw.rect(dis, yellow, [foodx, foody, snake_block, snake_block])
+        pygame.draw.rect(dis, red, [poisonx,poisony,snake_block,snake_block])
         snake_Head = []
         snake_Head.append(x1)
         snake_Head.append(y1)
@@ -232,6 +237,12 @@ def gameLoop():
                 Length_of_snake+=2
             elif food_weight==3:
                 Length_of_snake+=3
+        elif x1 == poisonx and y1 == poisony:
+            poisonx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
+            poisony = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
+            Length_of_snake -= 1
+            snake_List.pop()
+            our_snake(snake_block, snake_List)
 
         clock.tick(snake_speed)
 
