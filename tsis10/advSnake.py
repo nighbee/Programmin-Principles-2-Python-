@@ -22,7 +22,7 @@ clock = pygame.time.Clock()
 
 #adjusting snake
 snake_block = 10
-snake_speed = 15
+snake_speed = 10
 
 font_style = pygame.font.SysFont("bahnschrift", 25)
 score_font = pygame.font.SysFont("comicsansms", 35)
@@ -55,7 +55,7 @@ cur.execute('''
     )
 ''')
 conn.commit()
-
+conn.autocommit=True
 # cur.execute("""
 #     CREATE TABLE IF NOT EXISTS position (
 #     id SERIAL PRIMARY KEY,
@@ -110,7 +110,7 @@ def gameLoop():
     username= input("enter username: ")
     user_id=insert_user(username)
     userscore = get_user_score(user_id)
-    print(f"welcome back, {username}! Ur current score is {str(userscore)}")
+    print(f"welcome back, {username}! Ur current score is {userscore}")
 
     x1 = dis_width / 2
     y1 = dis_height / 2
@@ -149,7 +149,7 @@ def gameLoop():
                         game_close = False
                     if event.key == pygame.K_c:
                         gameLoop()
-        #main loop logick
+        #main loop logic
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game_over = True
@@ -176,6 +176,12 @@ def gameLoop():
                             if event.type==pygame.KEYDOWN:
                                 if event.key == pygame.K_SPACE:
                                     print("Resuming game...")
+                                    cur.execute("SELECT FROM scores WHERE user_id=%s", (user_id, ))
+                                    saved=cur.fetchone()[0]
+                                    now_score=Length_of_snake-1
+                                    if saved<now_score:
+                                        # saved_score=get_user_score(user_id)
+                                        print(f"{now_score} score is saved!")
                                     break
                         else:
                             continue
@@ -216,16 +222,16 @@ def gameLoop():
 
         pygame.display.update()
 
-        #walls
-        num_walls=10
-        walls=[]
-        for i in range(num_walls):
-            wallx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
-            wally = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
-            walls.append((wallx, wally))
-
-        if snake_Head in walls:
-            game_over=True
+        # #walls
+        # num_walls=10
+        # walls=[]
+        # for i in range(num_walls):
+        #     wallx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
+        #     wally = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
+        #     walls.append((wallx, wally))
+        #
+        # if snake_Head in walls:
+        #     game_over=True
 
 
         if x1 == foodx and y1 == foody:
