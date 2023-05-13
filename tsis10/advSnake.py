@@ -176,12 +176,12 @@ def gameLoop():
                             if event.type==pygame.KEYDOWN:
                                 if event.key == pygame.K_SPACE:
                                     print("Resuming game...")
-                                    cur.execute("SELECT FROM scores WHERE user_id=%s", (user_id, ))
-                                    saved=cur.fetchone()[0]
+                                    # cur.execute("SELECT FROM scores WHERE user_id=%s", (user_id, ))
+                                    # saved=cur.fetchone()[0]
                                     now_score=Length_of_snake-1
-                                    if saved<now_score:
+                                    # if saved<now_score:
                                         # saved_score=get_user_score(user_id)
-                                        print(f"{now_score} score is saved!")
+                                    print(f"{now_score} score is saved!")
                                     break
                         else:
                             continue
