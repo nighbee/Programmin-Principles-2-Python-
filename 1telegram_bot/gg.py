@@ -2,7 +2,7 @@ import openai
 from aiogram import Bot, Dispatcher, executor, types
 
 botToken = '6277072307:AAHk63pZ2zj-oGMkT9kTLtngaU9cnn2FTik'
-openAi = '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'
+openAi = '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'
 
 bot = Bot(token=botToken)
 dp = Dispatcher(bot)
