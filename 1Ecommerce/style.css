@@ -62,7 +62,7 @@
   .heading ul li a:hover::before {
     width: 100%;
     transition-duration: 1s;
-    background-color: rgb(243, 168, 7);
+    background-color: rgb(90, 91, 91);
   }
   #input {
     height: 30px;
