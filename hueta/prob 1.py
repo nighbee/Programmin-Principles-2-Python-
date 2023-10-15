@@ -104,3 +104,4 @@ selectedStu= cur.fetchall()
 for student in selectedStu:
     student_id, first_name, last_name, avg_gpa = student
     print(f"Student ID: {student_id}, Name: {first_name} {last_name}, Average GPA: {avg_gpa}")
+conn.commit()
