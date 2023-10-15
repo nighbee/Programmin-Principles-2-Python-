@@ -1,0 +1,7 @@
+CREATE TABLE stu_perfomance(
+    contact_id SERIAL PRIMARY KEY,
+    student_id VARCHAR(50) NOT NULL,
+    semester VARCHAR(50) NOT NULL ,
+    paper_num VARCHAR(50)  NOT NULL,
+    marks INT NOT NULL , 
+);
