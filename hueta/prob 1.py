@@ -2,7 +2,7 @@ import csv
 import psycopg2
 
 # connect to database
-conn = psycopg2.connect(database="ict", user="postgres", password="72zv5u3xp")
+conn = psycopg2.connect(database="lab3", user="postgres", password="72zv5u3xp")
 cur = conn.cursor()
 
 # cur.execute("CREATE TABLE student_perfomance (id SERIAL PRIMARY KEY, student_id VARCHAR(20) NOT NULL, semester VARCHAR(20) NOT NULL, paper_num VARCHAR(50), marks INT)")
@@ -42,9 +42,9 @@ cur = conn.cursor()
 # print ("most june: ")
 # print (junorStu)
 
-#prob 2 update shit
+# #prob 2 update shit
 # fnameUPD= "ooo"
-# updLname= "chlen "
+# updLname= "fff "
 # upd ="UPDATE shit1 SET lname = %s WHERE fname=%s"
 # cur.execute(upd, (updLname, fnameUPD))
 # conn.commit()
@@ -96,12 +96,12 @@ VALUES ('John', 'Doe', 20, 1),
        ('David', 'Johnson', 19, 1);
 '''
 
-#prob 3 avg avg of gpa
-cur.execute("SELECT AVG(gpa) FROM shit1 ")
-avgGpa= cur.fetchone()[0]
-cur.execute("SELECT student_id , fname, lname, AVG(gpa) AS average_gpa FROM shit1 GROUP BY student_id ,fname, lname HAVING AVG(gpa) > %s", (avgGpa, ))
-selectedStu= cur.fetchall()
-for student in selectedStu:
-    student_id, first_name, last_name, avg_gpa = student
-    print(f"Student ID: {student_id}, Name: {first_name} {last_name}, Average GPA: {avg_gpa}")
-conn.commit()
+# #prob 3 avg avg of gpa
+# cur.execute("SELECT AVG(gpa) FROM shit1 ")
+# avgGpa= cur.fetchone()[0]
+# cur.execute("SELECT student_id , fname, lname, AVG(gpa) AS average_gpa FROM shit1 GROUP BY student_id ,fname, lname HAVING AVG(gpa) > %s", (avgGpa, ))
+# selectedStu= cur.fetchall()
+# for student in selectedStu:
+#     student_id, first_name, last_name, avg_gpa = student
+#     print(f"Student ID: {student_id}, Name: {first_name} {last_name}, Average GPA: {avg_gpa}")
+# conn.commit()
