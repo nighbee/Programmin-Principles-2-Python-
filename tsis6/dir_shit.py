@@ -23,7 +23,7 @@ with open(file_name, 'r') as f:
     f.close()
 #5 list to file
 items=['mango', 'orange', 'apple', 'lemon']
-with open(file_name) as f:
+with open(file_name, 'w') as f:
     for it in items:
         f.write(it+"\n")
     f.close()
