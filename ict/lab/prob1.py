@@ -138,7 +138,7 @@ if m < n:
 else:
     for num in range(m, n-1, -1):
         print(num)
-#sequence 3
+# sequence 3
 m = int(input("Enter the value of m: "))
 n = int(input("Enter the value of n: "))
 
