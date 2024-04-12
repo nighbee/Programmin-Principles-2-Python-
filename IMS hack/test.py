@@ -2,19 +2,18 @@ from datamodel import OrderDepth, UserId, TradingState, Order
 from typing import List
 
 class Trader:
-    LONG_POSITION_LIMIT = 15  # The maximum long position
-    SHORT_POSITION_LIMIT = -15  # The maximum short position
+    POSITION_LIMIT = 20  # The maximum absolute value of the position
+    STOP_LOSS_THRESHOLD = 9500  # Set a stop-loss threshold for AMETHYSTS
 
     def __init__(self):
         self.threshold_prices = {
             'AMETHYSTS': {
-                'buy': 9000,
-                'sell': 9996
+                'buy': 8500,
+                'sell': 11000
             },
             'STARFRUIT': {
                 'buy': 4980,
-                'sell': 5000
-            }
+                'sell': 5000            }
         }
 
     def run(self, state: TradingState):
@@ -29,24 +28,27 @@ class Trader:
             buy_threshold = self.threshold_prices['AMETHYSTS']['buy']
             sell_threshold = self.threshold_prices['AMETHYSTS']['sell']
 
-            # Process sell orders if any bid price is higher than the sell threshold
+            # Check if stop-loss condition is met
+            best_bid = max(order_depth.buy_orders, key=lambda price: int(price), default=None)
+            if best_bid and int(best_bid) < self.STOP_LOSS_THRESHOLD:
+                sell_amount = state.position.get('AMETHYSTS', 0)
+                if sell_amount > 0:
+                    print(f"STOP-LOSS SELL {sell_amount}x {best_bid}")
+                    orders.append(Order('AMETHYSTS', best_bid, -sell_amount))
+
+            # Process regular sell orders if any bid price is higher than the sell threshold
             if len(order_depth.buy_orders) != 0:
                 best_bid, best_bid_amount = list(order_depth.buy_orders.items())[0]
                 if int(best_bid) > sell_threshold:
-                    sell_amount = min(best_bid_amount, state.position.get('AMETHYSTS', 0))  # Limit sell amount to current position
-                    sell_amount = min(sell_amount, self.LONG_POSITION_LIMIT - state.position.get('AMETHYSTS', 0))  # Limit sell amount to available long position
-                    if sell_amount > 0:
-                        print("SELL", str(sell_amount) + "x", best_bid)
-                        orders.append(Order('AMETHYSTS', best_bid, -sell_amount))  # Selling limited amount
+                    print("SELL", str(best_bid_amount) + "x", best_bid)
+                    orders.append(Order('AMETHYSTS', best_bid, best_bid_amount))  # Selling all available volume
 
-            # Process buy orders if any ask price is lower than the buy threshold
+            # Process regular buy orders if any ask price is lower than the buy threshold
             if len(order_depth.sell_orders) != 0:
                 best_ask, best_ask_amount = list(order_depth.sell_orders.items())[0]
                 if int(best_ask) < buy_threshold:
-                    buy_amount = min(best_ask_amount, self.SHORT_POSITION_LIMIT - state.position.get('AMETHYSTS', 0))  # Limit buy amount to available short position
-                    if buy_amount > 0:
-                        print("BUY", str(buy_amount) + "x", best_ask)
-                        orders.append(Order('AMETHYSTS', best_ask, buy_amount))  # Buying limited amount
+                    print("BUY", str(-best_ask_amount) + "x", best_ask)
+                    orders.append(Order('AMETHYSTS', best_ask, -best_ask_amount))  # Buying all available volume
 
             result['AMETHYSTS'] = orders
 
@@ -65,14 +67,13 @@ class Trader:
             # Decide whether to buy or sell based on the threshold prices and position limit
             if best_ask and int(best_ask) < buy_threshold:
                 best_ask_amount = order_depth.sell_orders[best_ask]
-                buy_amount = min(best_ask_amount, self.SHORT_POSITION_LIMIT - current_position)  # Do not exceed short position limit
+                buy_amount = min(best_ask_amount, self.POSITION_LIMIT - current_position)  # Do not exceed position limit
                 if buy_amount > 0:
                     starfruit_orders.append(Order('STARFRUIT', best_ask, buy_amount))
 
             elif best_bid and int(best_bid) > sell_threshold:
                 best_bid_amount = order_depth.buy_orders[best_bid]
-                sell_amount = min(best_bid_amount, current_position)  # Do not exceed current position
-                sell_amount = min(sell_amount, self.LONG_POSITION_LIMIT - current_position)  # Limit sell amount to available long position
+                sell_amount = min(best_bid_amount, self.POSITION_LIMIT + current_position)  # Do not exceed position limit
                 if sell_amount > 0:
                     starfruit_orders.append(Order('STARFRUIT', best_bid, -sell_amount))
 

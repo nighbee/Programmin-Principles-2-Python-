@@ -2,84 +2,74 @@ from datamodel import OrderDepth, UserId, TradingState, Order
 from typing import List
 
 class Trader:
-    POSITION_LIMIT = 20  # The maximum absolute value of the position
-    STOP_LOSS_THRESHOLD = 9500  # Set a stop-loss threshold for AMETHYSTS
-
     def __init__(self):
-        self.threshold_prices = {
-            'AMETHYSTS': {
-                'buy': 8500,
-                'sell': 11000
-            },
-            'STARFRUIT': {
-                'buy': 4980,
-                'sell': 5000            }
-        }
+        self.price_history = {'AMETHYSTS': [], 'STARFRUIT': []}
 
-    def run(self, state: TradingState):
-        print("traderData: " + state.traderData)
-        print("Observations: " + str(state.observations))
-        result = {}
+    def update_price_history(self, product: str, new_price: float):
+        """Adds the latest price to the product's price history."""
+        self.price_history[product].append(new_price)
+        # Optional: Trim the history to the last N prices to save memory
+        max_history_size = 500  # For example, keep the last 100 prices
+        self.price_history[product] = self.price_history[product][-max_history_size:]
+    def calculate_ema(self, prices, span=100):
+        """
+        Calculate the Exponential Moving Average (EMA) for a list of prices.
+        :param prices: List of prices (floats or integers).
+        :param span: The time span for the EMA.
+        :return: The EMA of the provided prices.
+        """
+        if not prices:
+            return None
+        ema = [prices[0]]  # Start EMA with the first price
+        alpha = 2 / (span + 1)  # The smoothing factor
+        for price in prices[1:]:
+            ema.append((price - ema[-1]) * alpha + ema[-1])
+        return ema[-1]
 
-        # Process AMETHYSTS
-        if 'AMETHYSTS' in state.order_depths:
-            order_depth: OrderDepth = state.order_depths['AMETHYSTS']
-            orders: List[Order] = []
-            buy_threshold = self.threshold_prices['AMETHYSTS']['buy']
-            sell_threshold = self.threshold_prices['AMETHYSTS']['sell']
+    def calculate_volatile_product_price(self, product: str) -> int:
+        """
+        Calculate the acceptable price for a volatile product using Exponential Moving Average (EMA).
+        """
+        prices = self.price_history[product]
+        if len(prices) < 10:  # Ensuring there's enough data to calculate EMA
+            return 4000  # Default price if not enough data
+        else:
+            ema_price = self.calculate_ema(prices)
+            return int(ema_price) if ema_price else 5000
 
-            # Check if stop-loss condition is met
-            best_bid = max(order_depth.buy_orders, key=lambda price: int(price), default=None)
-            if best_bid and int(best_bid) < self.STOP_LOSS_THRESHOLD:
-                sell_amount = state.position.get('AMETHYSTS', 0)
-                if sell_amount > 0:
-                    print(f"STOP-LOSS SELL {sell_amount}x {best_bid}")
-                    orders.append(Order('AMETHYSTS', best_bid, -sell_amount))
 
-            # Process regular sell orders if any bid price is higher than the sell threshold
-            if len(order_depth.buy_orders) != 0:
-                best_bid, best_bid_amount = list(order_depth.buy_orders.items())[0]
-                if int(best_bid) > sell_threshold:
-                    print("SELL", str(best_bid_amount) + "x", best_bid)
-                    orders.append(Order('AMETHYSTS', best_bid, best_bid_amount))  # Selling all available volume
+    def run(self, state: TradingState) -> tuple[dict[Symbol, list[Order]], int, str]:
+        orders = {}
+        conversions = 0
+        trader_data = ""
 
-            # Process regular buy orders if any ask price is lower than the buy threshold
+        for product, order_depth in state.order_depths.items():
+            orders[product] = []
+            if order_depth.buy_orders:  # Ensure there are buy orders
+                latest_price = max(order_depth.buy_orders.keys())
+                self.update_price_history(product, latest_price)
+                print("latest price: ", latest_price)
+            else:
+                latest_price = None
+
+            if product == 'AMETHYSTS':
+                acceptable_price = 10000
+            else:
+                acceptable_price = self.calculate_volatile_product_price(product)
+
+            logger.print("Acceptable  price : " + str(acceptable_price))
+
             if len(order_depth.sell_orders) != 0:
                 best_ask, best_ask_amount = list(order_depth.sell_orders.items())[0]
-                if int(best_ask) < buy_threshold:
-                    print("BUY", str(-best_ask_amount) + "x", best_ask)
-                    orders.append(Order('AMETHYSTS', best_ask, -best_ask_amount))  # Buying all available volume
+                if int(best_ask) < acceptable_price:
+                    logger.print("BUY", str(-best_ask_amount) + "x", best_ask)
+                    orders[product].append(Order(product, best_ask, -best_ask_amount))
 
-            result['AMETHYSTS'] = orders
+            if len(order_depth.buy_orders) != 0:
+                best_bid, best_bid_amount = list(order_depth.buy_orders.items())[0]
+                if int(best_bid) > acceptable_price:
+                    logger.print("SELL", str(best_bid_amount) + "x", best_bid)
+                    orders[product].append(Order(product, best_bid, -best_bid_amount))
 
-        # Process STARFRUIT
-        if 'STARFRUIT' in state.order_depths:
-            order_depth: OrderDepth = state.order_depths['STARFRUIT']
-            starfruit_orders: List[Order] = []
-            current_position = state.position.get('STARFRUIT', 0)  # Get the current position for STARFRUIT
-            buy_threshold = self.threshold_prices['STARFRUIT']['buy']
-            sell_threshold = self.threshold_prices['STARFRUIT']['sell']
-
-            # Extract the best bid and best ask
-            best_bid = max(order_depth.buy_orders, key=lambda price: int(price), default=None)
-            best_ask = min(order_depth.sell_orders, key=lambda price: int(price), default=None)
-
-            # Decide whether to buy or sell based on the threshold prices and position limit
-            if best_ask and int(best_ask) < buy_threshold:
-                best_ask_amount = order_depth.sell_orders[best_ask]
-                buy_amount = min(best_ask_amount, self.POSITION_LIMIT - current_position)  # Do not exceed position limit
-                if buy_amount > 0:
-                    starfruit_orders.append(Order('STARFRUIT', best_ask, buy_amount))
-
-            elif best_bid and int(best_bid) > sell_threshold:
-                best_bid_amount = order_depth.buy_orders[best_bid]
-                sell_amount = min(best_bid_amount, self.POSITION_LIMIT + current_position)  # Do not exceed position limit
-                if sell_amount > 0:
-                    starfruit_orders.append(Order('STARFRUIT', best_bid, -sell_amount))
-
-            result['STARFRUIT'] = starfruit_orders
-
-        # Update the trader state data if needed
-        traderData = "SAMPLE"
-        conversions = None  # Placeholder for conversions value
-        return result, conversions, traderData
+        logger.flush(state, orders, conversions, trader_data)
+        return orders, conversions, trader_data
