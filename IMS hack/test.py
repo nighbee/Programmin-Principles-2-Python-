@@ -1,85 +1,88 @@
-from datamodel import OrderDepth, UserId, TradingState, Order
-from typing import List
+import pandas as pd
+from prophet import Prophet
+import configparser
+from typing import Dict, List
+from collections import deque
+import logging
+
+from datamodel import OrderDepth, Order, TradingState
+
+# Read configuration from file
+config = configparser.ConfigParser()
+config.read('config.ini')
+MAX_HISTORY_SIZE = int(config.get('trader', 'max_history_size', fallback=500))
+DEFAULT_VOLATILE_PRICE = int(config.get('trader', 'default_volatile_price', fallback=4000))
+
+# Set up logging
+logging.basicConfig(filename='trader.log', level=logging.INFO)
 
 class Trader:
-    POSITION_LIMIT = 20  # The maximum absolute value of the position
-    STOP_LOSS_THRESHOLD = 9500  # Set a stop-loss threshold for AMETHYSTS
-
     def __init__(self):
-        self.threshold_prices = {
-            'AMETHYSTS': {
-                'buy': 8500,
-                'sell': 11000
-            },
-            'STARFRUIT': {
-                'buy': 4980,
-                'sell': 5000            }
-        }
+        self.price_history: Dict[str, deque] = {'AMETHYSTS': deque(maxlen=MAX_HISTORY_SIZE),
+                                                'STARFRUIT': deque(maxlen=MAX_HISTORY_SIZE)}
+        self.models: Dict[str, Prophet] = {'AMETHYSTS': Prophet(),
+                                           'STARFRUIT': Prophet()}
 
-    def run(self, state: TradingState):
-        print("traderData: " + state.traderData)
-        print("Observations: " + str(state.observations))
-        result = {}
+    def update_price_history(self, product: str, new_price: float):
+        """Adds the latest price to the product's price history."""
+        self.price_history[product].append(new_price)
 
-        # Process AMETHYSTS
-        if 'AMETHYSTS' in state.order_depths:
-            order_depth: OrderDepth = state.order_depths['AMETHYSTS']
-            orders: List[Order] = []
-            buy_threshold = self.threshold_prices['AMETHYSTS']['buy']
-            sell_threshold = self.threshold_prices['AMETHYSTS']['sell']
+    def train_model(self, product: str):
+        """Train the time series forecasting model for the given product."""
+        history = list(self.price_history[product])
+        if len(history) < 10:
+            return
 
-            # Check if stop-loss condition is met
-            best_bid = max(order_depth.buy_orders, key=lambda price: int(price), default=None)
-            if best_bid and int(best_bid) < self.STOP_LOSS_THRESHOLD:
-                sell_amount = state.position.get('AMETHYSTS', 0)
-                if sell_amount > 0:
-                    print(f"STOP-LOSS SELL {sell_amount}x {best_bid}")
-                    orders.append(Order('AMETHYSTS', best_bid, -sell_amount))
+        df = pd.DataFrame({'ds': [i for i in range(len(history))], 'y': history})
+        self.models[product].fit(df)
 
-            # Process regular sell orders if any bid price is higher than the sell threshold
-            if len(order_depth.buy_orders) != 0:
-                best_bid, best_bid_amount = list(order_depth.buy_orders.items())[0]
-                if int(best_bid) > sell_threshold:
-                    print("SELL", str(best_bid_amount) + "x", best_bid)
-                    orders.append(Order('AMETHYSTS', best_bid, best_bid_amount))  # Selling all available volume
+    def predict_price(self, product: str) -> float:
+        """Predict the next price for the given product using the trained model."""
+        history = list(self.price_history[product])
+        if not history:
+            return DEFAULT_VOLATILE_PRICE
 
-            # Process regular buy orders if any ask price is lower than the buy threshold
-            if len(order_depth.sell_orders) != 0:
-                best_ask, best_ask_amount = list(order_depth.sell_orders.items())[0]
-                if int(best_ask) < buy_threshold:
-                    print("BUY", str(-best_ask_amount) + "x", best_ask)
-                    orders.append(Order('AMETHYSTS', best_ask, -best_ask_amount))  # Buying all available volume
+        self.train_model(product)
 
-            result['AMETHYSTS'] = orders
+        # Predict the next price
+        future = self.models[product].make_future_dataframe(periods=1)
+        forecast = self.models[product].predict(future)
+        predicted_price = forecast['yhat'].values[-1]
 
-        # Process STARFRUIT
-        if 'STARFRUIT' in state.order_depths:
-            order_depth: OrderDepth = state.order_depths['STARFRUIT']
-            starfruit_orders: List[Order] = []
-            current_position = state.position.get('STARFRUIT', 0)  # Get the current position for STARFRUIT
-            buy_threshold = self.threshold_prices['STARFRUIT']['buy']
-            sell_threshold = self.threshold_prices['STARFRUIT']['sell']
+        return predicted_price
 
-            # Extract the best bid and best ask
-            best_bid = max(order_depth.buy_orders, key=lambda price: int(price), default=None)
-            best_ask = min(order_depth.sell_orders, key=lambda price: int(price), default=None)
+    def run(self, state: TradingState) -> Dict[str, List[Order]]:
+        orders = {}
+        for product, order_depth in state.order_depths.items():
+            orders[product] = self.place_orders(order_depth, product)
+        return orders
 
-            # Decide whether to buy or sell based on the threshold prices and position limit
-            if best_ask and int(best_ask) < buy_threshold:
-                best_ask_amount = order_depth.sell_orders[best_ask]
-                buy_amount = min(best_ask_amount, self.POSITION_LIMIT - current_position)  # Do not exceed position limit
-                if buy_amount > 0:
-                    starfruit_orders.append(Order('STARFRUIT', best_ask, buy_amount))
+    def place_orders(self, order_depth: OrderDepth, product: str) -> List[Order]:
+        """
+        Place buy and sell orders based on the order depth and predicted price for the product.
+        """
+        orders = []
+        if not order_depth.buy_orders and not order_depth.sell_orders:
+            logging.warning(f"No buy or sell orders available for {product}")
+            return orders
 
-            elif best_bid and int(best_bid) > sell_threshold:
-                best_bid_amount = order_depth.buy_orders[best_bid]
-                sell_amount = min(best_bid_amount, self.POSITION_LIMIT + current_position)  # Do not exceed position limit
-                if sell_amount > 0:
-                    starfruit_orders.append(Order('STARFRUIT', best_bid, -sell_amount))
+        if order_depth.buy_orders:  # Ensure there are buy orders
+            latest_price = max(order_depth.buy_orders.keys())
+            self.update_price_history(product, latest_price)
 
-            result['STARFRUIT'] = starfruit_orders
+        predicted_price = self.predict_price(product)
+        logging.info(f"Predicted price for {product}: {predicted_price:.2f}")
 
-        # Update the trader state data if needed
-        traderData = "SAMPLE"
-        conversions = None  # Placeholder for conversions value
-        return result, conversions, traderData
+        if order_depth.sell_orders:
+            best_ask, best_ask_amount = next(iter(order_depth.sell_orders.items()))
+            if best_ask < predicted_price:
+                logging.info(f"BUY {-best_ask_amount}x {product} @ {best_ask}")
+                orders.append(Order(product, best_ask, -best_ask_amount))
+
+        if order_depth.buy_orders:
+            best_bid, best_bid_amount = next(iter(order_depth.buy_orders.items()))
+            if best_bid > predicted_price:
+                logging.info(f"SELL {best_bid_amount}x {product} @ {best_bid}")
+                orders.append(Order(product, best_bid, best_bid_amount))
+
+        return orders
